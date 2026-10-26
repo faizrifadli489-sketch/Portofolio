@@ -66,6 +66,37 @@ a {
   text-decoration: none;
 }
 
+/* Fokus terlihat di seluruh situs (keyboard) */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: -60px;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 0.7rem 1.2rem;
+  border-radius: 0 0 12px 12px;
+  background: var(--amber);
+  color: #180c04;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: top 0.25s var(--ease);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Section tidak tertabrak navbar fixed saat anchor */
+section[id], #top {
+  scroll-margin-top: 5.5rem;
+}
+
 h1,
 h2,
 h3,
@@ -152,6 +183,95 @@ button {
   width: 26px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--amber));
+}
+
+/* tombol menu mobile — default tersembunyi */
+.nav-toggle {
+  display: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-toggle-bars {
+  display: grid;
+  gap: 5px;
+  width: 16px;
+}
+
+.nav-toggle-bars span {
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition: transform 0.35s var(--ease), opacity 0.35s;
+}
+
+.nav-toggle.open .nav-toggle-bars span:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+
+.nav-toggle.open .nav-toggle-bars span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle.open .nav-toggle-bars span:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 28;
+  background: rgba(4, 5, 10, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.nav-drawer {
+  position: fixed;
+  top: 59px;
+  left: 0;
+  right: 0;
+  z-index: 29;
+  display: grid;
+  gap: 0.15rem;
+  padding: 1rem var(--pad) 1.6rem;
+  background: rgba(6, 8, 14, 0.96);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+  animation: drawer-in 0.35s var(--ease);
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+.nav-drawer a {
+  padding: 0.85rem 0.25rem;
+  font-size: 1.05rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+}
+
+.nav-drawer a.active {
+  color: var(--amber);
+}
+
+.nav-drawer-cta {
+  margin-top: 1rem;
+  padding: 0.85rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 177, 115, 0.4);
+  background: rgba(255, 177, 115, 0.08);
+  color: var(--ink);
+  text-align: center;
+  font-size: 0.86rem;
+  border-bottom: 1px solid rgba(255, 177, 115, 0.4) !important;
 }
 
 /* ---------- loader ---------- */
@@ -870,12 +990,24 @@ button {
 }
 
 /* ---------- responsive ---------- */
+body.nav-open {
+  overflow: hidden;
+}
+
 @media (max-width: 860px) {
   .about-grid {
     grid-template-columns: 1fr;
   }
 
   .nav-links {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: grid;
+  }
+
+  .nav-cta {
     display: none;
   }
 

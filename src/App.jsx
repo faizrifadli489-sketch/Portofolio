@@ -20,32 +20,87 @@ function Reveal({ children, delay = 0, className = '' }) {
 }
 
 function Nav({ active }) {
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    document.body.classList.toggle('nav-open', open)
+    return () => document.body.classList.remove('nav-open')
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open])
+
+  const close = () => setOpen(false)
+
   return (
-    <header className="nav">
-      <a className="brand" href="#top" aria-label="Kembali ke atas">
-        <span className="brand-mark">{profile.initials}</span>
-        <span>{profile.name.split(' ')[0].toLowerCase()}</span>
-      </a>
+    <>
+      <header className="nav">
+        <a className="brand" href="#top" aria-label="Kembali ke atas">
+          <span className="brand-mark" aria-hidden="true">{profile.initials}</span>
+          <span>{profile.name.split(' ')[0].toLowerCase()}</span>
+        </a>
 
-      <nav className="nav-links" aria-label="Navigasi utama">
-        {nav.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className={`nav-link ${active === item.id ? 'active' : ''}`}
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
+        <nav className="nav-links" aria-label="Navigasi utama">
+          {nav.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={`nav-link ${active === item.id ? 'active' : ''}`}
+              aria-current={active === item.id ? 'true' : undefined}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
 
-      <a className="nav-cta" href={`mailto:${profile.email}`}>
-        <span>Ngobrol</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d="M2 10 10 2M10 2H4.5M10 2v5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-        </svg>
-      </a>
-    </header>
+        <a className="nav-cta" href={`mailto:${profile.email}`}>
+          <span>Ngobrol</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2 10 10 2M10 2H4.5M10 2v5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+        </a>
+
+        <button
+          type="button"
+          className={`nav-toggle ${open ? 'open' : ''}`}
+          aria-expanded={open}
+          aria-controls="nav-drawer"
+          aria-label={open ? 'Tutup menu' : 'Buka menu'}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className="nav-toggle-bars" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        </button>
+      </header>
+
+      {open && (
+        <>
+          <div className="nav-scrim" onClick={close} aria-hidden="true" />
+          <nav className="nav-drawer" id="nav-drawer" aria-label="Navigasi seluler">
+            {nav.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className={active === item.id ? 'active' : ''}
+                onClick={close}
+              >
+                {item.label}
+              </a>
+            ))}
+            <a className="nav-drawer-cta" href={`mailto:${profile.email}`} onClick={close}>
+              Ngobrol — {profile.email}
+            </a>
+          </nav>
+        </>
+      )}
+    </>
   )
 }
 
@@ -199,7 +254,14 @@ function Work() {
       <div className="work-grid">
         {projects.map((p, i) => (
           <Reveal key={p.id} delay={i * 80}>
-            <article className="card" style={{ '--hue': p.hue }}>
+            <a
+              className="card"
+              style={{ '--hue': p.hue }}
+              href={p.href || '#'}
+              target={p.href ? '_blank' : undefined}
+              rel={p.href ? 'noreferrer' : undefined}
+              aria-label={`${p.title} — ${p.category}`}
+            >
               <div className="card-top">
                 <span className="card-idx">{p.id}</span>
                 <span>{p.year}</span>
@@ -221,7 +283,7 @@ function Work() {
                   <path d="M2 10 10 2M10 2H4.5M10 2v5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                 </svg>
               </span>
-            </article>
+            </a>
           </Reveal>
         ))}
       </div>
@@ -323,6 +385,8 @@ export default function App({ withoutScene = false }) {
 
   return (
     <>
+      <a className="skip-link" href="#main">Lompat ke konten</a>
+
       <div className={`loader ${loaded ? 'gone' : ''}`} aria-hidden={loaded}>
         <div className="loader-ring" />
         <div className="loader-text">Menyelaraskan orbit</div>
@@ -334,7 +398,7 @@ export default function App({ withoutScene = false }) {
 
       <Nav active={active} />
 
-      <main className="app">
+      <main className="app" id="main">
         <Hero />
         <About />
         <Skills />

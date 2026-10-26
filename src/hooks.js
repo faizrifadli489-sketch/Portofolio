@@ -78,18 +78,24 @@ export function useActiveSection(ids) {
   const [active, setActive] = useState(null)
   useEffect(() => {
     const els = ids.map((id) => document.getElementById(id)).filter(Boolean)
-    if (!els.length || typeof IntersectionObserver === 'undefined') return
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-        if (visible) setActive(visible.target.id)
-      },
-      { threshold: [0.15, 0.4, 0.7], rootMargin: '-18% 0px -45% 0px' }
-    )
-    els.forEach((el) => io.observe(el))
-    return () => io.disconnect()
+    if (!els.length) return
+
+    const update = () => {
+      const line = window.innerHeight * 0.35
+      let current = null
+      for (const el of els) {
+        if (el.getBoundingClientRect().top <= line) current = el.id
+      }
+      setActive(current)
+    }
+
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
   }, [ids.join(',')])
   return active
 }
